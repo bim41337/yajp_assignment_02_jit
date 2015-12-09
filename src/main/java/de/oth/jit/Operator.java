@@ -5,18 +5,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-class JitOrder {
+class Operator {
 
 	private final static Path jitPath = Paths.get(".jit");
 	private final static Path objectsPath = Paths.get(".jit/objects");
 	private final static Path stagingPath = Paths.get(".jit/staging");
 	private Command command;
 
-	JitOrder(Command command) {
+	Operator(Command command) {
 		this.command = command;
 	}
 
 	void execute() throws JitException {
+		// DEBUG
 		System.out.println("Calling " + command.getAction().getCommandString() + " with " + command.getParameter());
 		if (command.getAction() == Action.INIT) {
 			init();
@@ -67,7 +68,7 @@ class JitOrder {
 			}
 		}
 		// DEBUG
-		System.out.println(controller);
+		System.out.print(controller);
 		controller.save();
 	}
 

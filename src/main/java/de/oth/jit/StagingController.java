@@ -20,25 +20,14 @@ class StagingController implements Serializable {
 	private StagingController() {
 		entries = new ArrayList<String>();
 	}
-	
+
 	static StagingController get() throws JitException {
 		if (!Files.exists(stagingFilePath)) {
 			return new StagingController();
 		}
 		return readStagingFile();
 	}
-	
-	void save() throws JitException {
-		ObjectOutputStream out;
-		try {
-			out = new ObjectOutputStream(new FileOutputStream(stagingFilePath.toFile()));
-			out.writeObject(this);
-			out.close();
-		} catch (Exception e) {
-			throw new JitException("Could not write staging file!");
-		}
-	}
-	
+
 	private static StagingController readStagingFile() throws JitException {
 		StagingController instance;
 		ObjectInputStream in;
@@ -52,21 +41,37 @@ class StagingController implements Serializable {
 		return instance;
 	}
 
+	void save() throws JitException {
+		ObjectOutputStream out;
+		try {
+			out = new ObjectOutputStream(new FileOutputStream(stagingFilePath.toFile()));
+			out.writeObject(this);
+			out.close();
+		} catch (Exception e) {
+			throw new JitException("Could not write staging file!");
+		}
+	}
+
 	void addFile(Path path) {
 		if (!alreadyStaged(path)) {
 			entries.add(path.toString());
 		}
 	}
-	
+
 	void removeFile(Path path) {
 		String pathString = path.toString();
+		int removeIndex = -1;
 		for (String memberString : entries) {
 			if (pathString.equals(memberString)) {
-				entries.remove(entries.indexOf(memberString));
+				removeIndex = entries.indexOf(memberString);
+				break;
 			}
 		}
+		if (removeIndex >= 0) {
+			entries.remove(removeIndex);
+		}
 	}
-	
+
 	private boolean alreadyStaged(Path path) {
 		String pathString = path.toString();
 		for (String memberString : entries) {
@@ -76,12 +81,22 @@ class StagingController implements Serializable {
 		}
 		return false;
 	}
-	
+
+	ArrayList<Path> getPathEntries() {
+		ArrayList<Path> pathEntries = new ArrayList<>();
+		entries.forEach(pathString -> pathEntries.add(Paths.get(pathString)));
+		return pathEntries;
+	}
+
+	ArrayList<String> getEntries() {
+		return entries;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder("Current staging status:\n");
 		for (String pathString : entries) {
-			builder.append(pathString);
+			builder.append(pathString + "\n");
 		}
 		return builder.toString();
 	}
