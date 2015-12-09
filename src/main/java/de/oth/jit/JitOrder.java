@@ -1,5 +1,6 @@
 package de.oth.jit;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -7,6 +8,8 @@ import java.nio.file.Paths;
 class JitOrder {
 
 	private final static Path jitPath = Paths.get(".jit");
+	private final static Path objectsPath = Paths.get(".jit/objects");
+	private final static Path stagingPath = Paths.get(".jit/staging");
 	private Command command;
 
 	JitOrder(Command command) {
@@ -14,41 +17,68 @@ class JitOrder {
 	}
 
 	void execute() throws JitException {
-		// All commands expect for init require initialization
-		if (command.getAction() != Action.INIT && isInitialized() == false) {
-			throw new JitException(command.getAction().getCommandString() + " requires a call to \"init\" first");
-		}
-		try {
-			System.out.println("Calling " + command.getAction().getCommandString() + " with " + command.getParameter());
-			JitOrder.class.getMethod(command.getAction().getCommandString()).invoke(this);
-		} catch (Exception e) {
-			throw new JitException("Internal error occured (JitOrder):\n[" + e.getMessage() + "]");
+		System.out.println("Calling " + command.getAction().getCommandString() + " with " + command.getParameter());
+		if (command.getAction() == Action.INIT) {
+			init();
+		} else {
+			if (!isInitialized()) {
+				throw new JitException(command.getAction().getCommandString() + " requires a call to \"init\" first");
+			}
+			switch (command.getAction()) {
+				case ADD:
+				case REMOVE:
+					stagingOperation();
+					break;
+				case COMMIT:
+					commit();
+					break;
+				case CHECKOUT:
+					checkout();
+					break;
+				default:
+					; // null statement
+					break;
+			}
 		}
 	}
-	
-	private void init() throws Exception {
+
+	private void init() throws JitException {
 		if (isInitialized()) {
 			return; // Nothing to do here
 		}
-		Files.createDirectory(jitPath);
+		try {
+			Files.createDirectory(jitPath);
+			Files.createDirectory(objectsPath);
+			Files.createDirectory(stagingPath);
+		} catch (IOException e) {
+			throw new JitException("Could not initialize .jit directory!");
+		}
 	}
-	
-	private void add() {
-		
+
+	// Performs ADD and REMOVE operations
+	private void stagingOperation() throws JitException {
+		StagingController controller = StagingController.get();
+		Path filePath = Paths.get(command.getParameter());
+		if (Files.exists(filePath)) {
+			if (command.getAction() == Action.ADD) {
+				controller.addFile(filePath);
+			} else if (command.getAction() == Action.REMOVE) {
+				controller.removeFile(filePath);
+			}
+		}
+		// DEBUG
+		System.out.println(controller);
+		controller.save();
 	}
-	
-	private void remove() {
-		
-	}
-	
+
 	private void commit() {
-		
+
 	}
-	
+
 	private void checkout() {
-		
+
 	}
-	
+
 	private boolean isInitialized() {
 		return Files.exists(jitPath) && Files.isDirectory(jitPath);
 	}

@@ -1,15 +1,15 @@
 package de.oth.jit;
 
 class Command {
-	
+
 	private Action action;
 	private String parameter;
-	
+
 	private Command(Action action, String parameter) {
 		this.action = action;
 		this.parameter = parameter;
 	}
-	
+
 	// Factory method to take care of errors and get the right Action-Param-Pair
 	static Command get(String[] args) throws JitException {
 		Action selectedAction = Action.get(args[0]);
@@ -28,5 +28,11 @@ class Command {
 	String getParameter() {
 		return parameter;
 	}
-		
+
+	@Override
+	public String toString() {
+		String param = ("".equals(parameter)) ? "---" : parameter;
+		return "Action: " + action.getCommandString() + ", Param: " + param;
+	}
+
 }
