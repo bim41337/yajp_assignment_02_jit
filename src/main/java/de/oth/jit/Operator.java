@@ -73,12 +73,11 @@ class Operator {
 	}
 
 	private void commit() throws JitException {
-		// NOPE
 		StagingController controller = StagingController.get();
 		String message = command.getParameter();
 		JitCommit commit = new JitCommit(controller);
 		commit.setCommitMessage(message);
-		System.out.println(commit);
+		commit.writeCommitFiles(objectsPath);
 	}
 
 	private void checkout() {

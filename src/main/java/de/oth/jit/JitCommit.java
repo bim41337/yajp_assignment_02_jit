@@ -8,42 +8,52 @@ class JitCommit extends JitObject {
 
 	private static final long serialVersionUID = 1L;
 	private String commitMessage;
-	
+
 	JitCommit(StagingController controller) {
 		entries = new ArrayList<JitObject>();
 		commitMessage = "";
 		pathString = "";
 		gatherEntries(controller.getPathEntries());
 	}
-	
+
 	private void gatherEntries(ArrayList<Path> stagingEntries) {
 		for (Path stagePath : stagingEntries) {
 			// Walk the commit tree and try to find a match
-			JitObject predecessor, current, newEntry;
+			JitObject predecessor, newEntry;
 			Iterator<Path> iterator = stagePath.iterator();
 			Path next;
-			predecessor = current = this;
+			predecessor = this;
 			// Iterator goes through path elements one by one
 			while (iterator.hasNext()) {
 				next = iterator.next();
-				if (current.contains(next)) {
-					predecessor = current;
-					current = current.getEntryByPath(next);
+				if (predecessor.contains(next)) {
+					predecessor = predecessor.getEntryByPath(next);
 				} else {
 					// staged paths only end with files
 					newEntry = (stagePath.endsWith(next)) ? new JitFile(stagePath) : new JitDirectory(next);
 					predecessor.addEntry(newEntry);
+					predecessor = newEntry;
 				}
 			}
 		}
 	}
-	
+
+	void writeCommitFiles(Path commitPath) {
+		commitPath = commitPath.resolve(this.getDirectPath());
+		writeRecursive(commitPath);
+	}
+
 	@Override
 	byte[] getCommitContent() {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
+	@Override
+	Type getType() {
+		return Type.COMMIT;
+	}
+
 	void setCommitMessage(String message) {
 		commitMessage = message;
 	}

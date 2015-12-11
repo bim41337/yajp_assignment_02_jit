@@ -22,10 +22,22 @@ abstract class JitObject implements Serializable {
 
 	abstract byte[] getCommitContent();
 
+	abstract Type getType();
+
+	// File has to override this method ... or does it???
+	void writeRecursive(Path path) {
+		path = path.resolve(getDirectPath());
+		System.out.println(this + ": " + path);
+		for (JitObject entry : entries) {
+			entry.writeRecursive(path);
+		}
+		// Create and write own content
+	}
+
 	void addEntry(JitObject entry) {
 		entries.add(entry);
 	}
-	
+
 	JitObject getEntryByPath(Path path) {
 		JitObject member = null;
 		for (JitObject entry : entries) {
@@ -35,16 +47,18 @@ abstract class JitObject implements Serializable {
 		}
 		return member;
 	}
-	
+
 	boolean contains(Path path) {
 		for (JitObject entry : entries) {
+			// System.out.println(path);
+			// System.out.println(entry.getDirectPath());
 			if (entry.getDirectPath().equals(path)) {
 				return true;
 			}
 		}
 		return false;
 	}
-	
+
 	Path getDirectPath() {
 		return Paths.get(pathString);
 	}
@@ -65,16 +79,15 @@ abstract class JitObject implements Serializable {
 		}
 		return s.toString();
 	}
-	
+
+	enum Type {
+		COMMIT, DIRECTORY, FILE
+	}
+
 	// DEBUG
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append(pathString + "\n");
-		for (JitObject entry : entries) {
-			builder.append(entries.indexOf(entry) + ": " + entry.toString() + "\n");
-		}
-		return builder.toString();
+		return getType().name() + " " + pathString;
 	}
 
 }
