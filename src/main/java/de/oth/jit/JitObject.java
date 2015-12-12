@@ -20,18 +20,22 @@ abstract class JitObject implements Serializable {
 	ArrayList<JitObject> entries;
 	String pathString;
 
-	abstract byte[] getCommitContent();
+	abstract byte[] getCommitContent() throws JitException;
 
 	abstract Type getType();
 
-	// File has to override this method ... or does it???
 	void writeRecursive(Path path) {
-		path = path.resolve(getDirectPath());
+		path = path.resolve(this.getDirectPath());
 		System.out.println(this + ": " + path);
 		for (JitObject entry : entries) {
 			entry.writeRecursive(path);
 		}
 		// Create and write own content
+		// Seems to work, now write that stuff
+		// DEBUG
+		try {
+			System.out.println(new String(getCommitContent()));
+		} catch (JitException e) {};
 	}
 
 	void addEntry(JitObject entry) {
@@ -62,12 +66,16 @@ abstract class JitObject implements Serializable {
 	Path getDirectPath() {
 		return Paths.get(pathString);
 	}
+	
+	String getHashString() throws JitException {
+		return byteArrayToHexString(getCommitContent());
+	}
 
-	String byteArrayToHexString() throws JitException {
+	static String byteArrayToHexString(byte[] contents) throws JitException {
 		StringBuilder s = new StringBuilder();
 		try {
 			MessageDigest md = MessageDigest.getInstance("SHA-1");
-			byte[] digested = md.digest(getCommitContent());
+			byte[] digested = md.digest(contents);
 
 			for (byte b : digested) {
 				int value = b & 0xFF;

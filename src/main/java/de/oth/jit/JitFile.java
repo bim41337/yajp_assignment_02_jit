@@ -1,13 +1,9 @@
 package de.oth.jit;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-
-import de.oth.jit.JitObject.Type;
 
 class JitFile extends JitObject {
 
@@ -21,18 +17,15 @@ class JitFile extends JitObject {
 		pathString = completePath.toString();
 	}
 
-	private void writeObject(ObjectOutputStream out) throws Exception {
-
-	}
-
-	private void readObject(ObjectInputStream in) throws Exception {
-
-	}
-
 	@Override
-	byte[] getCommitContent() {
-		// how to read file content while preserving structure???
-		return null;
+	byte[] getCommitContent() throws JitException {
+		byte[] content = {};
+		try {
+			content = Files.readAllBytes(completeFilePath);
+		} catch (IOException e) {
+			throw new JitException("Could not commit file \"" + completeFilePath + "\"!");
+		}
+		return content;
 	}
 
 	@Override
@@ -48,6 +41,7 @@ class JitFile extends JitObject {
 
 	@Override
 	Path getDirectPath() {
+		// File needs to know its full path since it has to read the byte content
 		return completeFilePath.getFileName();
 	}
 

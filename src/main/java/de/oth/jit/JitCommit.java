@@ -44,9 +44,14 @@ class JitCommit extends JitObject {
 	}
 
 	@Override
-	byte[] getCommitContent() {
-		// TODO Auto-generated method stub
-		return null;
+	byte[] getCommitContent() throws JitException {
+		String lineSeparator = System.lineSeparator(), entryName;
+		StringBuilder builder = new StringBuilder(getType() + " " + commitMessage + lineSeparator);
+		for (JitObject entry : entries) {
+			entryName = entry.getDirectPath().getFileName().toString();
+			builder.append(entry.getType() + " " + entry.getHashString() + " " + entryName + lineSeparator);
+		}
+		return builder.toString().getBytes();
 	}
 
 	@Override
