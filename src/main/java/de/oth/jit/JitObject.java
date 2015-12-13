@@ -15,7 +15,7 @@ abstract class JitObject {
 
 	abstract byte[] getCommitContent() throws JitException;
 
-	abstract Type getType();
+	abstract ObjectType getType();
 
 	void writeRecursive(Path commitPath) throws JitException {
 		for (JitObject entry : entries) {
@@ -77,10 +77,6 @@ abstract class JitObject {
 			throw new JitException("Could not compute a hash string!");
 		}
 		return s.toString();
-	}
-
-	enum Type {
-		COMMIT, DIRECTORY, FILE
 	}
 
 	// DEBUG

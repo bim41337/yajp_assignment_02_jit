@@ -45,12 +45,12 @@ class JitCommit extends JitObject {
 			entryName = entry.getDirectPath().getFileName().toString();
 			builder.append(entry.getType() + " " + entry.getHashString() + " " + entryName + lineSeparator);
 		}
-		return builder.toString().getBytes();
+		return builder.toString().trim().getBytes();
 	}
 
 	@Override
-	Type getType() {
-		return Type.COMMIT;
+	ObjectType getType() {
+		return ObjectType.COMMIT;
 	}
 
 	void setCommitMessage(String message) {

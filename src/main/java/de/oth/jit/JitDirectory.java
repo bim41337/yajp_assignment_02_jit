@@ -18,12 +18,12 @@ public class JitDirectory extends JitObject {
 			entryName = entry.getDirectPath().getFileName().toString();
 			builder.append(entry.getType() + " " + entry.getHashString() + " " + entryName + lineSeparator);
 		}
-		return builder.toString().getBytes();
+		return builder.toString().trim().getBytes();
 	}
 
 	@Override
-	Type getType() {
-		return Type.DIRECTORY;
+	ObjectType getType() {
+		return ObjectType.DIRECTORY;
 	}
 
 }

@@ -18,13 +18,15 @@ class JitFile extends JitObject {
 
 	@Override
 	byte[] getCommitContent() throws JitException {
-		byte[] content = {};
+		byte[] byteContent = {};
+		String commitContent;
 		try {
-			content = Files.readAllBytes(completeFilePath);
+			byteContent = Files.readAllBytes(completeFilePath);
 		} catch (IOException e) {
 			throw new JitException("Could not commit file \"" + completeFilePath + "\"!");
 		}
-		return content;
+		commitContent = getType() + System.lineSeparator() + new String(byteContent);
+		return commitContent.getBytes();
 	}
 
 	@Override
@@ -50,8 +52,8 @@ class JitFile extends JitObject {
 	}
 
 	@Override
-	Type getType() {
-		return Type.FILE;
+	ObjectType getType() {
+		return ObjectType.FILE;
 	}
 
 }
