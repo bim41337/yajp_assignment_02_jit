@@ -6,7 +6,6 @@ import java.util.Iterator;
 
 class JitCommit extends JitObject {
 
-	private static final long serialVersionUID = 1L;
 	private String commitMessage;
 
 	JitCommit(StagingController controller) {
@@ -36,11 +35,6 @@ class JitCommit extends JitObject {
 				}
 			}
 		}
-	}
-
-	void writeCommitFiles(Path commitPath) {
-		commitPath = commitPath.resolve(this.getDirectPath());
-		writeRecursive(commitPath);
 	}
 
 	@Override

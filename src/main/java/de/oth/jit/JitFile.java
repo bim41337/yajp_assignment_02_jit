@@ -7,7 +7,6 @@ import java.util.ArrayList;
 
 class JitFile extends JitObject {
 
-	private static final long serialVersionUID = 1L;
 	private Path completeFilePath;
 
 	JitFile(Path completePath) {

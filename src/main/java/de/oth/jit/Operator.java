@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import org.apache.commons.io.FileUtils;
 
 class Operator {
 
@@ -16,6 +17,7 @@ class Operator {
 		this.command = command;
 	}
 
+	// Starting point for all operations
 	void execute() throws JitException {
 		// DEBUG
 		System.out.println("Calling " + command.getAction().getCommandString() + " with " + command.getParameter());
@@ -77,13 +79,20 @@ class Operator {
 		String message = command.getParameter();
 		JitCommit commit = new JitCommit(controller);
 		commit.setCommitMessage(message);
-		commit.writeCommitFiles(objectsPath);
+		try {
+			FileUtils.cleanDirectory(objectsPath.toFile());
+		} catch (Exception e) {
+			throw new JitException("Could not clean commit directory.\nCAUTION: Commit incomplete!");
+		}
+		commit.writeRecursive(objectsPath);
 	}
 
 	private void checkout() {
 		// No clue ...
 	}
 
+	// Helper methods
+	
 	private boolean isInitialized() {
 		return Files.exists(jitPath) && Files.isDirectory(jitPath);
 	}

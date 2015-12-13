@@ -1,10 +1,5 @@
 package de.oth.jit;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Iterator;
-
 public class Jit {
 
 	public static void main(String[] args) {
@@ -21,12 +16,6 @@ public class Jit {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		// Path path = Paths.get("some/path/to/sth.mep"), next;
-		// Iterator<Path> it = path.iterator();
-		// while (it.hasNext()) {
-		// next = it.next();
-		// System.out.println(next + " | " + Files.isDirectory(next));
-		// }
 	}
 
 }

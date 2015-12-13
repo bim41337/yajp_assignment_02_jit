@@ -28,25 +28,21 @@ class StagingController implements Serializable {
 		return readStagingFile();
 	}
 
+	// Deserializing method
 	private static StagingController readStagingFile() throws JitException {
 		StagingController instance;
-		ObjectInputStream in;
-		try {
-			in = new ObjectInputStream(new FileInputStream(stagingFilePath.toFile()));
+		try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(stagingFilePath.toFile()))) {
 			instance = (StagingController) in.readObject();
-			in.close();
 		} catch (Exception e) {
 			throw new JitException("Could not read staging file!");
 		}
 		return instance;
 	}
 
+	// Serializing method
 	void save() throws JitException {
-		ObjectOutputStream out;
-		try {
-			out = new ObjectOutputStream(new FileOutputStream(stagingFilePath.toFile()));
+		try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(stagingFilePath.toFile()))) {
 			out.writeObject(this);
-			out.close();
 		} catch (Exception e) {
 			throw new JitException("Could not write staging file!");
 		}
@@ -71,6 +67,8 @@ class StagingController implements Serializable {
 			entries.remove(removeIndex);
 		}
 	}
+	
+	// Helper methods
 
 	private boolean alreadyStaged(Path path) {
 		String pathString = path.toString();
