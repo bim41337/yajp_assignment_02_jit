@@ -2,7 +2,6 @@ package de.oth.jit;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -10,9 +9,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.stream.Stream;
 
 import org.apache.commons.io.FileUtils;
 
@@ -29,8 +25,6 @@ class Operator {
 
 	// Starting point for all operations
 	void execute() throws JitException {
-		// DEBUG
-		System.out.println("Calling " + command.getAction().getCommandString() + " with " + command.getParameter());
 		if (command.getAction() == Action.INIT) {
 			init();
 		} else {
@@ -63,7 +57,7 @@ class Operator {
 			Files.createDirectory(jitPath);
 			Files.createDirectory(objectsPath);
 			Files.createDirectory(stagingPath);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw new JitException("Could not initialize .jit directory!");
 		}
 	}
@@ -95,27 +89,36 @@ class Operator {
 			throw new JitException("Could not clean commit directory.\nCAUTION: Commit incomplete!");
 		}
 		commit.writeRecursive(objectsPath);
+		System.out.println("Commit complete!");
 	}
 
 	private void checkout() throws JitException {
 		Map<String, List<String>> objectContents = readObjectsContents();
-		// Delete the workspace ...
+		Path startingPath = Paths.get("checkout");
+		// Delete the substitute workspace expect .jit directory
+		try {
+			Files.walk(startingPath, 1).filter(path -> !path.equals(startingPath))
+					.filter(path -> !path.equals(startingPath.resolve(jitPath)))
+					.forEach(path -> FileUtils.deleteQuietly(path.toFile()));
+		} catch (Exception e) {
+			throw new JitException("Could not clean workspace.\nCAUTION: Checkout incomplete!");
+		}
 		// Now read find commit entry, start writing files and directories
 		if (objectContents.get(command.getParameter()) != null) {
-			writeContent(Paths.get("checkout"), command.getParameter(), objectContents);
+			writeContent(startingPath, command.getParameter(), objectContents);
 		} else {
 			throw new JitException("Could not find specified commit file " + command.getParameter());
 		}
+		System.out.println("Checkout complete!");
 	}
 
 	// Helper methods
 
+	// Restores the workspace by writing all directories and files
 	private void writeContent(Path writePath, String hashKey, Map<String, List<String>> objectContents)
 			throws JitException {
 		List<String> content = objectContents.get(hashKey);
 		ObjectType type = ObjectType.valueOf(content.get(0).split(" ")[0].trim()); // First line always contains type
-		// DEBUG
-		System.out.println("Writing a " + type);
 		if (type == ObjectType.FILE) {
 			// File needs to put its content together before writing
 			StringBuffer fullContent = new StringBuffer();
@@ -131,7 +134,7 @@ class Operator {
 				throw new JitException("Could not write file.\nCAUTION: Checkout incomplete!");
 			}
 		} else {
-			// Create contents and recall routine for every entry to write
+			// Create directory contents and recall routine for every entry to write
 			String line[], entryKey, entryName;
 			Path newPath;
 			for (int i = 1; i < content.size(); i++) {
@@ -152,6 +155,7 @@ class Operator {
 		}
 	}
 
+	// Reads and returns a map holding all the information needed to recreate the workspace
 	private Map<String, List<String>> readObjectsContents() throws JitException {
 		HashMap<String, List<String>> objectContents = new HashMap<>();
 		try {

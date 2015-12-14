@@ -18,9 +18,11 @@ abstract class JitObject {
 	abstract ObjectType getType();
 
 	void writeRecursive(Path commitPath) throws JitException {
+		// Start recursion for all sub entries
 		for (JitObject entry : entries) {
 			entry.writeRecursive(commitPath);
 		}
+		// Write own content to file
 		File outputFile = commitPath.resolve(getHashString()).toFile();
 		try (FileOutputStream out = new FileOutputStream(outputFile)) {
 			outputFile.createNewFile();
@@ -57,7 +59,7 @@ abstract class JitObject {
 	Path getDirectPath() {
 		return Paths.get(pathString);
 	}
-	
+
 	String getHashString() throws JitException {
 		return byteArrayToHexString(getCommitContent());
 	}
@@ -77,12 +79,6 @@ abstract class JitObject {
 			throw new JitException("Could not compute a hash string!");
 		}
 		return s.toString();
-	}
-
-	// DEBUG
-	@Override
-	public String toString() {
-		return getType().name() + " " + pathString;
 	}
 
 }

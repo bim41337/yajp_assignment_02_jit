@@ -22,7 +22,7 @@ class JitCommit extends JitObject {
 			Iterator<Path> iterator = stagePath.iterator();
 			Path next;
 			predecessor = this;
-			// Iterator goes through path elements one by one
+			// Go through path elements one by one
 			while (iterator.hasNext()) {
 				next = iterator.next();
 				if (predecessor.contains(next)) {

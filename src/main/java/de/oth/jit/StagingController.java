@@ -14,13 +14,14 @@ class StagingController implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	private final static Path stagingFilePath = Paths.get(".jit/staging/stage.ser");
-	// Paths are saved as their string representation to be serializable
+	// Paths are saved as their string representation to stay serializable
 	private ArrayList<String> entries;
 
 	private StagingController() {
 		entries = new ArrayList<String>();
 	}
 
+	// Factory method used for instancing a controller
 	static StagingController get() throws JitException {
 		if (!Files.exists(stagingFilePath)) {
 			return new StagingController();
@@ -67,7 +68,7 @@ class StagingController implements Serializable {
 			entries.remove(removeIndex);
 		}
 	}
-	
+
 	// Helper methods
 
 	private boolean alreadyStaged(Path path) {
@@ -90,6 +91,7 @@ class StagingController implements Serializable {
 		return entries;
 	}
 
+	// Used to indicate the staging status after a staging operation
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder("Current staging status:\n");

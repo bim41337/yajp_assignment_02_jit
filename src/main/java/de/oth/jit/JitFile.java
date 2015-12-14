@@ -10,7 +10,6 @@ class JitFile extends JitObject {
 	private Path completeFilePath;
 
 	JitFile(Path completePath) {
-		// Stays empty
 		entries = new ArrayList<JitObject>(0);
 		completeFilePath = completePath;
 		pathString = completePath.toString();

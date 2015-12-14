@@ -1,5 +1,6 @@
 package de.oth.jit;
 
+// Indicates the jit action to be performed
 enum Action {
 
 	INIT("init", 1), ADD("add"), REMOVE("remove"), COMMIT("commit"), CHECKOUT("checkout");
@@ -7,7 +8,7 @@ enum Action {
 	// Factory method
 	static Action get(String commandString) throws JitException {
 		if (commandString != null) {
-		for (Action action : Action.values()) {
+			for (Action action : Action.values()) {
 				if (commandString.toLowerCase().equals(action.getCommandString())) {
 					return action;
 				}

@@ -1,5 +1,6 @@
 package de.oth.jit;
 
+// Represents the whole command entered by the user
 class Command {
 
 	private Action action;
@@ -27,12 +28,6 @@ class Command {
 
 	String getParameter() {
 		return parameter;
-	}
-
-	@Override
-	public String toString() {
-		String param = ("".equals(parameter)) ? "---" : parameter;
-		return "Action: " + action.getCommandString() + ", Param: " + param;
 	}
 
 }
